@@ -1,5 +1,8 @@
 const blockchain = require("../models/blockchain");
 const node = require("../models/node");
+const fetch = require("node-fetch");
+
+
 
 let myBlockChain = new blockchain.blockchain();
 let peerList = [];
@@ -76,7 +79,9 @@ module.exports = {
       headers: { "Content-Type": "application/json" }
     };
     let result = await fetch(URL + link, Options);
+    console.log(result);
     peerList.push(newNode);
+    console.log(peerList);
     // give the new peer the blockchain
     return res.send(peerList);
   },
@@ -103,6 +108,7 @@ module.exports = {
     // TODO  Check if the client is a registered node.
     let blockchain = req.body;
     // save the blockchain to
+    console.log(blockchain);
     myBlockChain.saveBlockchain(blockchain);
     console.log("Blockchain saved");
     return true;

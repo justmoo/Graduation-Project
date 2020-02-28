@@ -5,7 +5,10 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "dev": "nodemon -r dotenv/config app.js"
+    "dev": "nodemon -r dotenv/config app.js 3000",
+    "node_1":"nodemon app.js 3001 http://localhost:3001",
+    "node_2":"nodemon app.js 3002 http://localhost:3002",
+    "node_3":"nodemon app.js 3003 http://localhost:3003"
   },
   "keywords": [
     "blockchain"
