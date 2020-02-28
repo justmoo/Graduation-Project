@@ -2,8 +2,6 @@ const blockchain = require("../models/blockchain");
 const node = require("../models/node");
 const fetch = require("node-fetch");
 
-
-
 let myBlockChain = new blockchain.blockchain();
 let peerList = [];
 let pendingPeers = [];
@@ -59,31 +57,48 @@ module.exports = {
     let URL = req.body.URL;
     let location = req.body.location;
     let newNode = new node.Node(URL, name, location);
-    // check if the node is already registered
-    for (let i = 0; i < peerList.length; i++) {
-      if (peerList[i].URL == URL) {
-        // TODO add more logic to it,
-        return res.send(" The URL registered");
+    try {
+      // check if the node is already registered
+      if (peerList.length > 0) {
+        for (let i = 0; i < peerList.length; i++) {
+          if (peerList[i].URL == URL) {
+            // TODO add more logic to it,
+            return res.send("The URL registered");
+          }
+        }
       }
-    }
-    // before that it should get accpeted into the network.
-    // i.e. The other nodes(or at least 4) Must accept the new Node and verifiy it's identity
+      // before that it should get accpeted into the network.
+      // i.e. The other nodes(or at least 4) Must accept the new Node and verifiy it's identity.
+      // i did push the node here so it include it self when registering
+      
+      // TODO // when a node joins the network, it should get a full list of peers
+      // TODO // when a node gets into the network its url should be broadcast to everyone.
+      // TODO // when a node joins the network it gets the full blockchain from the requested node.
+      let blockchainLink = "/sendblockchain";
+      let newBlockchain = myBlockChain.getTheBlockchain();
+      // brodcast the block.
+      let blockchainRequest = {
+        method: "POST",
+        body: JSON.stringify(newBlockchain),
+        headers: { "Content-Type": "application/json" }
+      };
+       await fetch(URL + blockchainLink, blockchainRequest);
 
-    // TODO // when a node joins the network, it should get a full list of peers
-    // TODO // when a node joins the network it gets the full blockchain from the requested node.
-    let link = "/sendBlockchain";
-    let newBlockchain = myBlockChain.getTheBlockchain();
-    let Options = {
-      method: "POST",
-      body: JSON.stringify(newBlockchain),
-      headers: { "Content-Type": "application/json" }
-    };
-    let result = await fetch(URL + link, Options);
-    console.log(result);
-    peerList.push(newNode);
-    console.log(peerList);
-    // give the new peer the blockchain
-    return res.send(peerList);
+
+      // broadcast the peer
+      let peerLink = "/addpeers";
+      let peerRequest = {
+        method: "POST",
+        body: JSON.stringify(newNode),
+        headers: { "Content-Type": "application/json" }
+      };
+      await fetch(URL + peerLink, peerRequest);
+      // give the new peer the blockchain
+      peerList.push(newNode);
+      return res.send(peerList);
+    } catch (error) {
+      return res.send("error : " + error);
+    }
   },
   getPeers: (req, res) => {
     // TODO // verifying the node is registered.
@@ -104,13 +119,26 @@ module.exports = {
     }
     return res.send("block rejected");
   },
+  // TODO change this function to sendData, and pass peers along with the blockchain.
+
   sendBlockchain: (req, res) => {
     // TODO  Check if the client is a registered node.
-    let blockchain = req.body;
+    let blockchain = req.body.blockchain;
     // save the blockchain to
     console.log(blockchain);
     myBlockChain.saveBlockchain(blockchain);
     console.log("Blockchain saved");
-    return true;
+
+    res.send("Blockchain accepted");
+  },
+  addPeer: (req, res) => {
+    let name = req.body.name;
+    let URL = req.body.URL;
+    let location = req.body.location;
+    let newNode = new node.Node(URL, name, location);
+    console.log(req.body);
+    console.log(newNode);
+    peerList.push(newNode);
+    res.send(" one peer added to the network");
   }
 };

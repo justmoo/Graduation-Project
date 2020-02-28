@@ -9,7 +9,7 @@ router.get("/blockchain", blockchainController.fetchBlockchain);
 router.get("/getpeers", blockchainController.getPeers);
 // request to enter the network.
 router.post("/register", blockchainController.registerNode);
-//adding a block to this blockchain then prodcast it to the network.
+//adding a block to this blockchain then broadcast it to the network.
 router.post("/addblock", blockchainController.addBlock);
 // receive a block from a member of the network.
 router.post("/receiveblock", blockchainController.receiveBlock);
@@ -17,5 +17,7 @@ router.post("/receiveblock", blockchainController.receiveBlock);
 router.post("/search/:hash", blockchainController.searchForBlock);
 // this endpoint receives the whole blockchain from another peer and save it into this node.
 router.post("/sendblockchain", blockchainController.sendBlockchain);
+// when a peer register this route broadcast him to the network.
+router.post("/addpeers", blockchainController.addPeer);
 
 module.exports = router;
