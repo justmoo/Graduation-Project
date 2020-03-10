@@ -34,7 +34,7 @@ module.exports = {
     let data = mempool;
     // checks if the mempool has more than 5 students.
     if (data.length <= 5) {
-      return res.status(400).send("creating a block requires more than 5 students");
+      return res.status(403).send("creating a block requires more than 5 students");
     }
     // add the block.
     let newBlock = myBlockChain.addBlock(data);
