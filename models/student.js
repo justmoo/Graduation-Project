@@ -1,17 +1,18 @@
 class Student {
-    // this is what's inside the blocks
-    constructor(ID, data) {
-      // Student ID
-      this.ID = ID;
-      // name, Duh.
-      this.name;
-      // Hash of the certificate
-      this.HashOfCertificate = data;
-      // year of graduation
-      this.Year;
-      // from which university
-      this.university;
-    }
+  // this is what's inside the blocks
+  constructor(ID, name, hash, year, university, major) {
+    // Student ID
+    this.ID = ID;
+    // name, Duh.
+    this.name = name;
+    // Hash of the certificate
+    this.hashOfCertificate = hash;
+    // year of graduation
+    this.year = year;
+    // from which university
+    this.university = university;
+    // major of this student.
+    this.major = major;
   }
-  module.exports.Student = Student;
-  
+}
+module.exports.Student = Student;

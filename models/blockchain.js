@@ -52,9 +52,7 @@ class blockchain {
     // add graduted students, // TODO Block size dissection
 
     //gives the block time and discarding the last three numbers
-    newBlock.timestamp = Date.now()
-      .toString()
-      .slice(0, -3);
+    newBlock.timestamp = new Date().now;
     // gives the height
     newBlock.height = this.list.length;
     // to avoid the error from gensis block
@@ -118,10 +116,10 @@ class blockchain {
   }
   saveBlockchain(blockchain) {
     // a method to save the blockchain for new nodes
-    if (this.list > 0) {
+    // if (this.list > 0) {
       this.list = blockchain;
       console.log("the blockchain saved in the database");
-    }
+    // }
     return true;
   }
   // receive the block from other nodes
@@ -154,7 +152,7 @@ class blockchain {
         newStudent.name = "Mohammed Abdullah";
         newStudent.name = "Harverd university";
       }
-      newStudent.Year = 2019;
+      newStudent.Year = 2020;
       this.dummyData.push(newStudent);
     }
   }
