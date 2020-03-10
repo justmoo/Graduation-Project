@@ -33,7 +33,9 @@ module.exports = {
     // TODO // reset the timer when the block
     // receive the data from a form, not a whole block
     let data = mempool;
-
+    if (data.length <= 5) {
+      return res.send("creating a block requires more than 5 students");
+    }
     let newBlock = myBlockChain.addBlock(data);
     // check the peerList and send the block to them one by one
     let link = "/blockchain/receiveBlock";
@@ -269,4 +271,3 @@ module.exports = {
     res.send("mempool saved");
   }
 };
-
