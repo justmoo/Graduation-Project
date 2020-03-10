@@ -7,8 +7,8 @@ const SHA256 = require("crypto-js/sha256");
 let myBlockChain = new blockchain.blockchain();
 
 // getting the value from the CMD. Change it later to ENV when in prod.
-let nodeURL = process.argv[3] || process.env.NODE_URL;
-let nodeName = process.argv[4] || process.env.NODE_NAME;
+let nodeURL      = process.argv[3] || process.env.NODE_URL;
+let nodeName     = process.argv[4] || process.env.NODE_NAME;
 let nodeLocation = process.argv[5] || process.env.NODE_LOCATION;
 
 // mempool, duh.
@@ -34,7 +34,7 @@ module.exports = {
     let data = mempool;
     // checks if the mempool has more than 5 students.
     if (data.length <= 5) {
-      return res.send("creating a block requires more than 5 students");
+      return res.status(400).send("creating a block requires more than 5 students");
     }
     // add the block.
     let newBlock = myBlockChain.addBlock(data);
