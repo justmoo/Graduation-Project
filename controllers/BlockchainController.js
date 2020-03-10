@@ -7,9 +7,9 @@ const SHA256 = require("crypto-js/sha256");
 let myBlockChain = new blockchain.blockchain();
 
 // getting the value from the CMD. Change it later to ENV when in prod.
-let nodeURL = process.argv[3];
-let nodeName = process.argv[4];
-let nodeLocation = process.argv[5];
+let nodeURL = process.argv[3] || process.env.NODE_URL;
+let nodeName = process.argv[4] || process.env.NODE_NAME;
+let nodeLocation = process.argv[5] || process.env.NODE_LOCATION;
 
 // mempool, duh.
 let mempool = [];
@@ -30,19 +30,19 @@ module.exports = {
     return res.send(result);
   },
   addBlock: async (req, res) => {
-    // TODO // reset the timer when the block
-    // receive the data from a form, not a whole block
+    // sends the whole mempool.
     let data = mempool;
+    // checks if the mempool has more than 5 students.
     if (data.length <= 5) {
       return res.send("creating a block requires more than 5 students");
     }
+    // add the block.
     let newBlock = myBlockChain.addBlock(data);
     // check the peerList and send the block to them one by one
-    let link = "/blockchain/receiveBlock";
     for (let i = 0; i < peerList.length; i++) {
       if (!(currentNode.URL == peerList[i].URL)) {
         let URL = peerList[i].URL;
-        let Link = URL + link;
+        let Link = URL + "/blockchain/receiveBlock";
         // doesn't work right now, because it require a real url not 'localhost'
         // get the url from the peerList and combine it with the endPoint with a Post request
         let Options = {
@@ -69,7 +69,6 @@ module.exports = {
     let hash = myBlockChain.getLastBlockHash();
     // check if they have the same Blockchain by checking the last block
     if (Block.previousHash == hash) {
-      // TODO // add check if the Blockchain is valid (hash && validChain)
       // checking the blockchain if it's valid
       if (myBlockChain.receiveBlock(Block)) {
         // send the block if everything fine.
