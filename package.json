@@ -5,10 +5,10 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "node_0":"nodemon app.js 3000 http://localhost:3000 university-01 Riyadh",
-    "node_1":"nodemon app.js 3001 http://localhost:3001 university-02 Jeddah",
-    "node_2":"nodemon app.js 3002 http://localhost:3002 university-03 Riyadh",
-    "node_3":"nodemon app.js 3003 http://localhost:3003 university-04 Riyadh"
+    "node_0": "nodemon app.js 3000 http://localhost:3000 university-01 Riyadh",
+    "node_1": "nodemon app.js 3001 http://localhost:3001 university-02 Jeddah",
+    "node_2": "nodemon app.js 3002 http://localhost:3002 university-03 Riyadh",
+    "node_3": "nodemon app.js 3003 http://localhost:3003 university-04 Riyadh"
   },
   "keywords": [
     "blockchain"
@@ -20,6 +20,7 @@
     "crypto-js": "^4.0.0",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "level": "^6.0.1",
     "node-fetch": "^2.6.0"
   }
 }

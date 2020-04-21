@@ -4,7 +4,7 @@ class Block {
   constructor(data) {
     this.height = 0;
     //for the gensis block
-    this.previousHash = "x0000";
+    this.previousBlockHash = "x0000";
 
     this.timestamp = new Date().now;
 

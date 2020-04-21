@@ -2,88 +2,120 @@
 const SHA256 = require("crypto-js/sha256");
 const Block = require("./block.js");
 const Student = require("./student.js");
+const LevelDB = require("../db/blockchainDB");
+
 class blockchain {
   constructor() {
-    // init the list (Temp) // TODO Add database
-    this.list = [];
-    this.dummyData = [];
+    this.database = new LevelDB.LevelSandbox();
     // create the first Block
     this.generateGenesisBlock();
-    // generate data
-    this.getData();
-    // add the block with the dummyData
-    this.addBlock(this.dummyData);
     // get the whole blockchain
     this.getTheBlockchain();
   }
-  // generate the genesis block only if the blockchain has 0 blocks
-  generateGenesisBlock() {
-    if (this.list.length == 0) {
-      let newBlock = new Block.Block("gradute's blockchain");
 
-      // TODO // restore the genesis block func
-      // did that to start all the nodes with the same hash.
-
-      //gives the block time and discarding the last three numbers
-      newBlock.timestamp = 0;
-      // gives the height
-      newBlock.height = 0;
-      // to avoid the error from gensis block
-      newBlock.previousHash = "x000";
-
-      // hash all the data inside the block
-      newBlock.hash = SHA256(JSON.stringify(newBlock)).toString();
-      //push the block into the list (Temp)
-
-      this.list.push(newBlock);
+  async generateGenesisBlock() {
+    let self = this;
+    try {
+      if ((await self.getBlockHeight()) <= -1) {
+        // Changed it to <= instead of ==
+        await self.addBlock("First block in the chain - Genesis block");
+      }
+    } catch (err) {
+      console.log(err);
     }
-    return this.blockchain;
   }
+
+  async getBlockHeight() {
+    let self = this;
+    let height = await self.database.getBlocksCount();
+    let length = (await height.length) - 1; // now it shows the right number
+
+    return length;
+  }
+  async getBlockchainHeight() {
+    let self = this;
+    let height = await self.database.getBlocksCount();
+    let length = await height.length;
+
+    return length;
+  }
+
   // this method gets all the blockchain
-  getTheBlockchain() {
-    return this.list;
+  async getTheBlockchain() {
+    let blockchain = [];
+    let self = this;
+    let data = await self.database.getBlocksCount();
+    for (let i = 0; i < data.length; i++) {
+      let value = JSON.parse(await data[i].value);
+      blockchain.push(value);
+    }
+    return blockchain;
   }
   // this method adds blocks to the blockchain
 
-  addBlock(data) {
+  async addBlock(data) {
     let newBlock = new Block.Block(data);
-
+    let self = this;
     // -- check if the mempool it has anything--
-    // add graduted students, // TODO Block size dissection
+    // add graduted students
 
     //gives the block time and discarding the last three numbers
-    newBlock.timestamp = new Date().now;
+    newBlock.timestamp = Date.now();
     // gives the height
-    newBlock.height = this.list.length;
+    newBlock.height = (await this.getBlockHeight()) + 1;
     // to avoid the error from gensis block
-    if (this.list.length > 0) {
-      // get the hash from the last block
-      newBlock.previousHash = this.list[this.list.length - 1].hash;
+    if ((await self.getBlockchainHeight()) >= 1) {
+      let previousBlock = await self.getBlock(
+        (await self.getBlockchainHeight()) - 1
+      ); // Fixed some Json.parse done
+      newBlock.previousBlockHash = previousBlock.hash; //fixed await
     }
     // hash all the data inside the block
     newBlock.hash = SHA256(JSON.stringify(newBlock)).toString();
     //push the block into the list (Temp)
 
-    this.list.push(newBlock);
+    // this.list.push(newBlock);
+    console.log(newBlock);
+    await this.database.addLevelDBData(
+      newBlock.height,
+      JSON.stringify(newBlock).toString()
+    );
     // return the block
     return newBlock;
   }
 
   // this method help if you want to search for a certain hash in the blockchain
-  getBlock(hash) {
-    // loop through the list and look for the hash
-    for (var i = 0; i < this.list.length; i++) {
-      if (this.list[i].hash == hash) {
-        let newBlock = this.list[i];
-        return newBlock;
-      }
+  async getBlock(key) {
+    try {
+      let self = this;
+      let value = JSON.parse(await self.database.getLevelDBData(key));
+      return value;
+    } catch (err) {
+      console.log(err);
     }
   }
+  // get the block by hash
+  async getBlockByHash(hash) {
+    let block = await this.database.getBlockByHash(hash);
+    return block;
+  }
   // helper method
-  getLastBlockHash() {
-    let Hash = this.list[this.list.length - 1].hash;
-
+  async getLastBlockHash() {
+    let Hash = await this.getBlock((await this.getBlockchainHeight()) - 1);
     return Hash;
+  }
+
+  async getCertificateHash(hash) {
+    // loops over the whole blockchain, and loops inside every block to get the hash.
+    let blockchain = await this.getTheBlockchain();
+    for (let i = 0; i < blockchain.length; i++) {
+      for (let j = 0; j < blockchain[i].data.length; j++) {
+        if (blockchain[i].data[j].hashOfCertificate == hash) {
+          return blockchain[i].data[j];
+        }
+      }
+    }
+    return false;
   }
   // to check if the block's data is valid
   ValidateBlock(Block) {
@@ -114,47 +146,25 @@ class blockchain {
     }
     return false;
   }
-  saveBlockchain(blockchain) {
+  async saveBlockchain(blockchain) {
     // a method to save the blockchain for new nodes
-    // if (this.list > 0) {
-      this.list = blockchain;
-      console.log("the blockchain saved in the database");
-    // }
+    for (let i = 0; i < blockchain.length; i++) {
+      await this.database.addLevelDBData(
+        blockchain[i].key,
+        blockchain[i].value.data
+      );
+    }
+    console.log("the blockchain saved in the database");
     return true;
   }
   // receive the block from other nodes
-  receiveBlock(Block) {
-    // need to handle the JSON file better // TODO
-    // need to rehash the block to make sure the hash is valid
+  async receiveBlock(Block) {
     if (this.ValidateBlock(Block)) {
-      this.list.push(Block);
+      await this.database.addLevelDBData(Block.height, JSON.stringify(Block));
       console.log("received Block is valid and added to the Blockchain");
       return true;
     }
     return false;
-  }
-
-  // generate dummy data, there is so many ways to generate but this one is mine.
-  getData() {
-    // random "real numbers" 20 students
-    for (let x = 437105030; x < 437105050; x++) {
-      // hasing the number, not the certificate
-      let Hash = SHA256(JSON.stringify(x)).toString();
-      let newStudent = new Student.Student(x, Hash);
-      //just to randomize the data
-      if (x % 3 == 0) {
-        newStudent.name = "Ali Ahmed";
-        newStudent.university = "King saud university";
-      } else if (x % 4 == 0) {
-        newStudent.name = "khaild Mohammed";
-        newStudent.university = "Stanford university";
-      } else {
-        newStudent.name = "Mohammed Abdullah";
-        newStudent.name = "Harverd university";
-      }
-      newStudent.Year = 2020;
-      this.dummyData.push(newStudent);
-    }
   }
 }
 module.exports.blockchain = blockchain;

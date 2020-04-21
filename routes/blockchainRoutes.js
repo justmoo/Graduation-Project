@@ -16,6 +16,8 @@ router.post("/blockchain/addblock", blockchainController.addBlock);
 router.post("/blockchain/receiveblock", blockchainController.receiveBlock);
 // this endpoint receives the whole blockchain from another peer and save it into this node.
 router.post("/blockchain/sendblockchain", blockchainController.sendBlockchain);
+// this endpoint takes hash of certificate and loops through the blockchain looking for it.
+router.get('/blockchain/certificates/:hash',blockchainController.searchForAStudentByHashOfCertificate);
 
 /// peer Routes
 // get the peers
@@ -28,6 +30,10 @@ router.post("/peers/add", blockchainController.addPeer);
 router.post("/peers/delete", blockchainController.deletePeer);
 // route to receive a FULL list of peers
 router.post("/peers/save", blockchainController.savePeers);
+// getting pending peers
+router.get("/peers/pending", blockchainController.getPendingPeers);
+// vote for a pending peer
+router.post("/peers/vote", blockchainController.peerVote);
 
 // mempool Routes
 //get the mempool

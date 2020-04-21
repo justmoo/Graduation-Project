@@ -7,8 +7,8 @@ const SHA256 = require("crypto-js/sha256");
 let myBlockChain = new blockchain.blockchain();
 
 // getting the value from the CMD. Change it later to ENV when in prod.
-let nodeURL      = process.argv[3] || process.env.NODE_URL;
-let nodeName     = process.argv[4] || process.env.NODE_NAME;
+let nodeURL = process.argv[3] || process.env.NODE_URL;
+let nodeName = process.argv[4] || process.env.NODE_NAME;
 let nodeLocation = process.argv[5] || process.env.NODE_LOCATION;
 
 // mempool, duh.
@@ -22,22 +22,29 @@ let peerList = [currentNode];
 let pedndingPeerList = [];
 module.exports = {
   fetchBlockchain: async (req, res) => {
-    let result = myBlockChain.getTheBlockchain();
+    let result = await myBlockChain.getTheBlockchain();
     return res.send(result);
   },
-  searchForBlock: (req, res) => {
-    let result = myBlockChain.getBlock(req.params.hash);
+  searchForBlock: async (req, res) => {
+    let result = await myBlockChain.getBlockByHash(req.params.hash);
     return res.send(result);
+  },
+  // takes hash of the certificate and loops through the blockchain.
+  searchForAStudentByHashOfCertificate: async (req, res) => {
+    let student = await myBlockChain.getCertificateHash(req.params.hash);
+    res.send(student);
   },
   addBlock: async (req, res) => {
     // sends the whole mempool.
     let data = mempool;
     // checks if the mempool has more than 5 students.
     if (data.length <= 5) {
-      return res.status(403).send("creating a block requires more than 5 students");
+      return res
+        .status(403)
+        .send("creating a block requires more than 5 students");
     }
     // add the block.
-    let newBlock = myBlockChain.addBlock(data);
+    let newBlock = await myBlockChain.addBlock(data);
     // check the peerList and send the block to them one by one
     for (let i = 0; i < peerList.length; i++) {
       if (!(currentNode.URL == peerList[i].URL)) {
@@ -48,7 +55,7 @@ module.exports = {
         let Options = {
           method: "POST",
           body: JSON.stringify(newBlock),
-          headers: { "Content-Type": "application/json" }
+          headers: { "Content-Type": "application/json" },
         };
         await fetch(Link, Options);
         await fetch(URL + "/mempool/clear", { method: "POST" });
@@ -63,10 +70,9 @@ module.exports = {
     mempool = [];
     return res.send(newBlock);
   },
-  receiveBlock: (req, res) => {
-    // TODO Check if the node is from the network.
+  receiveBlock: async (req, res) => {
     let Block = req.body;
-    let hash = myBlockChain.getLastBlockHash();
+    let hash = await myBlockChain.getLastBlockHash();
     // check if they have the same Blockchain by checking the last block
     if (Block.previousHash == hash) {
       // checking the blockchain if it's valid
@@ -78,12 +84,11 @@ module.exports = {
     return res.send("block rejected");
   },
 
-  sendBlockchain: (req, res) => {
-    // TODO  Check if the client is a registered node.
+  sendBlockchain: async (req, res) => {
     let blockchain = req.body;
     // save the blockchain
     console.log(blockchain);
-    myBlockChain.saveBlockchain(blockchain);
+    await yBlockChain.saveBlockchain(blockchain);
     console.log("Blockchain saved");
     res.send("Blockchain accepted");
   },
@@ -97,6 +102,10 @@ module.exports = {
     let URL = req.body.URL;
     let location = req.body.location;
     let newNode = new node.Node(URL, name, location);
+    if (newNode.numberOfVotes > 1) {
+      return res.status(401).send("You don't have enough votes");
+    }
+    newNode.activated = true;
     try {
       // check if the node is already registered
       for (let i = 0; i < peerList.length; i++) {
@@ -107,22 +116,22 @@ module.exports = {
       // before that it should get accpeted into the network.
       // i.e. The other nodes(or at least 4) Must accept the new Node and verifiy it's identity.
       // i did push the node here so it include it self when registering
-      let newBlockchain = myBlockChain.getTheBlockchain();
+      let newBlockchain = await myBlockChain.getTheBlockchain();
       // brodcast the block.
       let blockchainRequest = {
         method: "POST",
         body: JSON.stringify(newBlockchain),
-        headers: { "Content-Type": "application/json" }
+        headers: { "Content-Type": "application/json" },
       };
       let peerListToSave = {
         method: "POST",
         body: JSON.stringify(peerList),
-        headers: { "Content-Type": "application/json" }
+        headers: { "Content-Type": "application/json" },
       };
       let memepoolToSave = {
         method: "POST",
         body: JSON.stringify(mempool),
-        headers: { "Content-Type": "application/json" }
+        headers: { "Content-Type": "application/json" },
       };
       // send the blockchain
       await fetch(URL + "/blockchain/sendblockchain", blockchainRequest);
@@ -137,7 +146,7 @@ module.exports = {
       let peerRequest = {
         method: "POST",
         body: JSON.stringify(newNode),
-        headers: { "Content-Type": "application/json" }
+        headers: { "Content-Type": "application/json" },
       };
 
       // send the node to all the peers.
@@ -153,6 +162,9 @@ module.exports = {
     } catch (error) {
       return res.send("error : " + error);
     }
+  },
+  getPendingPeers: (req, res) => {
+    return pedndingPeerList;
   },
   savePeers: (req, res) => {
     let newPeerList = req.body;
@@ -193,6 +205,31 @@ module.exports = {
     return res.send("peerList Saved");
   },
 
+  peerVote: async (req, res) => {
+    for (let i = 0; i < pedndingPeerList.length; i++) {
+      pedndingPeerListp[i].numberOfVotes++;
+
+      if (req.body.URL == pedndingPeerList[i].URL) {
+        if (pedndingPeerListp[i].numberOfVotes < 0) {
+          let pendingNode = pedndingPeerListp[i];
+          peerList.push(pedndingPeerList[i]);
+          pedndingPeerList.splice(i, 1);
+          let newNode = new node.Node(
+            pendingNode.URL,
+            pendingNode.name,
+            pendingNode.location
+          );
+          let request = {
+            method: "POST",
+            body: JSON.stringify(newNode),
+            headers: { "Content-Type": "application/json" },
+          };
+          await fetch(nodeURL + "/peers/register", request);
+        }
+      }
+    }
+  },
+
   // mempool management.
   getMempool: (req, res) => {
     return res.send(mempool);
@@ -221,7 +258,7 @@ module.exports = {
     let studentRequest = {
       method: "POST",
       body: JSON.stringify(newStudent),
-      headers: { "Content-Type": "application/json" }
+      headers: { "Content-Type": "application/json" },
     };
     console.log(newStudent);
     // send it to everyone in the network.
@@ -268,5 +305,5 @@ module.exports = {
     }
     console.log("mempool received!");
     res.send("mempool saved");
-  }
+  },
 };
