@@ -90,12 +90,9 @@ module.exports = {
   receiveBlock: async (req, res) => {
     let Block = req.body;
     let hash = await myBlockChain.getLastBlockHash();
-    console.log(Block.previousBlockHash);
-    console.log('^^^^^^^^^^^')
-    console.log(hash)
     // check if they have the same Blockchain by checking the last block
     if (Block.previousBlockHash == hash) {
-      console.log(' Yes previousHash is the same')
+     
       // checking the blockchain if it's valid
       if (await myBlockChain.receiveBlock(Block)) {
         // send the block if everything fine.

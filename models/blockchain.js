@@ -131,7 +131,7 @@ class blockchain {
     let newBlock = {};
     // give it the same properties
     newBlock.height = Block.height;
-    newBlock.previousHash = Block.previousHash;
+    newBlock.previousBlockHash = Block.previousBlockHash;
     newBlock.timestamp = Block.timestamp;
     newBlock.data = Block.data;
     // it took me 3 hours to figure out why it's not producing the same hash
@@ -146,6 +146,7 @@ class blockchain {
     Block.hash = SHA256(JSON.stringify(newBlock)).toString();
     // showin' result for testing purposes.
     // check if the hash is valid.
+    
     if (Block.hash == blockHash) {
       return true;
     }
