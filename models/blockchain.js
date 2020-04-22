@@ -155,8 +155,8 @@ class blockchain {
       // a method to save the blockchain for new nodes
       for (let i = 0; i < blockchain.length; i++) {
         await this.database.addLevelDBData(
-          blockchain[i].key,
-          JSON.stringify(blockchain[i].value)
+          blockchain[i].height,
+          JSON.stringify(blockchain[i])
         );
       }
       console.log("the blockchain saved in the database");
