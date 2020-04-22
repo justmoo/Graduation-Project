@@ -93,7 +93,6 @@ class blockchain {
     try {
       let self = this;
       let value = JSON.parse(await self.database.getLevelDBData(key));
-      console.log(value);
       return value;
     } catch (err) {
       console.log(err);
