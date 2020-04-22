@@ -49,6 +49,7 @@ module.exports = {
   },
   getBlockByHeight: async (req, res) => {
     let block = await myBlockChain.getBlock(req.params.height);
+    console.log(block)
     if (!block) {
       res.status(404).send("this block doesn't exists");
     }
