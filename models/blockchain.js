@@ -101,7 +101,8 @@ class blockchain {
   // get the block by hash
   async getBlockByHash(hash) {
     let block = await this.database.getBlockByHash(hash);
-    return block;
+    console.log('get hash function returns this ' + block.hash)
+    return block.hash;
   }
   // helper method
   async getLastBlockHash() {
