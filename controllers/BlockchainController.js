@@ -92,7 +92,6 @@ module.exports = {
     let hash = await myBlockChain.getLastBlockHash();
     // check if they have the same Blockchain by checking the last block
     if (Block.previousBlockHash == hash) {
-     
       // checking the blockchain if it's valid
       if (await myBlockChain.receiveBlock(Block)) {
         // send the block if everything fine.
@@ -100,6 +99,12 @@ module.exports = {
       }
     }
     return res.send("block rejected");
+  },
+
+  getBlockByHeight: async (req, res) => {
+
+    let block = await myBlockChain.getBlock(req.params.height);
+    return res.send(block);
   },
 
   sendBlockchain: async (req, res) => {
@@ -135,7 +140,7 @@ module.exports = {
       // i.e. The other nodes(or at least 4) Must accept the new Node and verifiy it's identity.
       // i did push the node here so it include it self when registering
       let newBlockchain = await myBlockChain.getTheBlockchain();
-      console.log(newBlockchain)
+      console.log(newBlockchain);
       // brodcast the block.
       let blockchainRequest = {
         method: "POST",

@@ -10,6 +10,8 @@ router.get("/", (req, res) => {
 router.get("/blockchain", blockchainController.fetchBlockchain);
 // search for a block using hash.
 router.get("/blockchain/search/:hash", blockchainController.searchForBlock);
+// search for a block using hash.
+router.get("/blockchain/height/:height", blockchainController.getBlockByHeight);
 // adding a block to this blockchain then broadcast it to the network.
 router.post("/blockchain/addblock", blockchainController.addBlock);
 // receive a block from a member of the network.
