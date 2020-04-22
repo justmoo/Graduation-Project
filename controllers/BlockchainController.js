@@ -77,7 +77,7 @@ module.exports = {
           // Showin' the result
           console.log("--------");
           console.log("block sent to:");
-          console.log(URL + "/blockchain/receiveBlock");
+          console.log(Link);
           console.log("--------");
         }
       }
