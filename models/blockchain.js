@@ -100,7 +100,8 @@ class blockchain {
   }
   // get the block by hash
   async getBlockByHash(hash) {
-    let block = await this.database.getBlockByHash(hash); 
+    let result = await this.database.getBlockByHash(hash); 
+      block = JSON.parse(result.value);
     return block;
   }
   // helper method
