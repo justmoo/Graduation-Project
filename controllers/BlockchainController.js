@@ -22,12 +22,12 @@ let currentNode = new node.Node(nodeURL, nodeName, nodeLocation);
 // this section is part of the demo not related to the project.
 
 let firstPeer = new node.Node(
-  "https://unichain-1.herokuapp.com/",
+  "https://unichain-1.herokuapp.com",
   "KSU",
   "Riyadh"
 );
 let secondPeer = new node.Node(
-  "https://unichain-2.herokuapp.com/",
+  "https://unichain-2.herokuapp.com",
   "PSU",
   "Riyadh"
 );
