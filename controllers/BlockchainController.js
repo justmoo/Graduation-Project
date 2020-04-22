@@ -92,6 +92,7 @@ module.exports = {
     let hash = await myBlockChain.getLastBlockHash();
     // check if they have the same Blockchain by checking the last block
     if (Block.previousHash == hash) {
+      console.log(' Yes previousHash is the same')
       // checking the blockchain if it's valid
       if (await myBlockChain.receiveBlock(Block)) {
         // send the block if everything fine.

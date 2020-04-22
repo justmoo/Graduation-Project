@@ -169,6 +169,7 @@ class blockchain {
   async receiveBlock(Block) {
     try {
       if (this.ValidateBlock(Block)) {
+        console.log('Valid block!')
         await this.database.addLevelDBData(Block.height, JSON.stringify(Block));
         console.log("received Block is valid and added to the Blockchain");
         return true;
