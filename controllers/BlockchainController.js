@@ -21,17 +21,17 @@ let currentNode = new node.Node(nodeURL, nodeName, nodeLocation);
 
 // this section is part of the demo not related to the project.
 
-let firstPeer = new node.Node(
-  "https://unichain-1.herokuapp.com",
-  "KSU",
-  "Riyadh"
-);
-let secondPeer = new node.Node(
-  "https://unichain-2.herokuapp.com",
-  "PSU",
-  "Riyadh"
-);
-let peerList = [firstPeer, secondPeer];
+// let firstPeer = new node.Node(
+//   "https://unichain-1.herokuapp.com",
+//   "KSU",
+//   "Riyadh"
+// );
+// let secondPeer = new node.Node(
+//   "https://unichain-2.herokuapp.com",
+//   "PSU",
+//   "Riyadh"
+// );
+let peerList = [currentNode];
 let pedndingPeerList = [];
 module.exports = {
   fetchBlockchain: async (req, res) => {
