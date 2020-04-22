@@ -105,8 +105,8 @@ class blockchain {
   }
   // helper method
   async getLastBlockHash() {
-    let Hash = await this.getBlock((await this.getBlockchainHeight()) - 1);
-    return Hash;
+    let block = await this.getBlock((await this.getBlockchainHeight()) - 1);
+    return block.hash;
   }
 
   async getCertificateHash(hash) {
