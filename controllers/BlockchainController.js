@@ -93,7 +93,7 @@ module.exports = {
     // check if they have the same Blockchain by checking the last block
     if (Block.previousHash == hash) {
       // checking the blockchain if it's valid
-      if (myBlockChain.receiveBlock(Block)) {
+      if (await myBlockChain.receiveBlock(Block)) {
         // send the block if everything fine.
         return res.send(Block);
       }
@@ -105,7 +105,7 @@ module.exports = {
     let blockchain = req.body;
     // save the blockchain
     console.log(blockchain);
-    await yBlockChain.saveBlockchain(blockchain);
+    await myBlockChain.saveBlockchain(blockchain);
     console.log("Blockchain saved");
     res.send("Blockchain accepted");
   },

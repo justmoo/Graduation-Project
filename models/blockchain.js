@@ -54,34 +54,38 @@ class blockchain {
   // this method adds blocks to the blockchain
 
   async addBlock(data) {
-    let newBlock = new Block.Block(data);
-    let self = this;
-    // -- check if the mempool it has anything--
-    // add graduted students
+    try {
+      let newBlock = new Block.Block(data);
+      let self = this;
+      // -- check if the mempool it has anything--
+      // add graduted students
 
-    //gives the block time and discarding the last three numbers
-    newBlock.timestamp = Date.now();
-    // gives the height
-    newBlock.height = (await this.getBlockHeight()) + 1;
-    // to avoid the error from gensis block
-    if ((await self.getBlockchainHeight()) >= 1) {
-      let previousBlock = await self.getBlock(
-        (await self.getBlockchainHeight()) - 1
-      ); // Fixed some Json.parse done
-      newBlock.previousBlockHash = previousBlock.hash; //fixed await
+      //gives the block time and discarding the last three numbers
+      newBlock.timestamp = Date.now();
+      // gives the height
+      newBlock.height = (await this.getBlockHeight()) + 1;
+      // to avoid the error from gensis block
+      if ((await self.getBlockchainHeight()) >= 1) {
+        let previousBlock = await self.getBlock(
+          (await self.getBlockchainHeight()) - 1
+        ); // Fixed some Json.parse done
+        newBlock.previousBlockHash = previousBlock.hash; //fixed await
+      }
+      // hash all the data inside the block
+      newBlock.hash = SHA256(JSON.stringify(newBlock)).toString();
+      //push the block into the list (Temp)
+
+      // this.list.push(newBlock);
+      console.log(newBlock);
+      await this.database.addLevelDBData(
+        newBlock.height,
+        JSON.stringify(newBlock).toString()
+      );
+      // return the block
+      return newBlock;
+    } catch (err) {
+      console.log(err);
     }
-    // hash all the data inside the block
-    newBlock.hash = SHA256(JSON.stringify(newBlock)).toString();
-    //push the block into the list (Temp)
-
-    // this.list.push(newBlock);
-    console.log(newBlock);
-    await this.database.addLevelDBData(
-      newBlock.height,
-      JSON.stringify(newBlock).toString()
-    );
-    // return the block
-    return newBlock;
   }
 
   // this method help if you want to search for a certain hash in the blockchain
@@ -147,24 +151,32 @@ class blockchain {
     return false;
   }
   async saveBlockchain(blockchain) {
-    // a method to save the blockchain for new nodes
-    for (let i = 0; i < blockchain.length; i++) {
-      await this.database.addLevelDBData(
-        blockchain[i].key,
-        blockchain[i].value.data
-      );
+    try {
+      // a method to save the blockchain for new nodes
+      for (let i = 0; i < blockchain.length; i++) {
+        await this.database.addLevelDBData(
+          blockchain[i].key,
+          blockchain[i].value.data
+        );
+      }
+      console.log("the blockchain saved in the database");
+      return true;
+    } catch (error) {
+      console.log(error);
     }
-    console.log("the blockchain saved in the database");
-    return true;
   }
   // receive the block from other nodes
   async receiveBlock(Block) {
-    if (this.ValidateBlock(Block)) {
-      await this.database.addLevelDBData(Block.height, JSON.stringify(Block));
-      console.log("received Block is valid and added to the Blockchain");
-      return true;
+    try {
+      if (this.ValidateBlock(Block)) {
+        await this.database.addLevelDBData(Block.height, JSON.stringify(Block));
+        console.log("received Block is valid and added to the Blockchain");
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.log(error);
     }
-    return false;
   }
 }
 module.exports.blockchain = blockchain;
