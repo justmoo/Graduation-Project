@@ -47,6 +47,14 @@ module.exports = {
     let student = await myBlockChain.getCertificateHash(req.params.hash);
     res.send(student);
   },
+  getBlockByHeight: async (req, res) => {
+    let block = await myBlockChain.getBlock(req.params.height);
+    if (!block) {
+      res.status(404).send("this block doesn't exists");
+    }
+    return res.send(block);
+  },
+
   addBlock: async (req, res) => {
     try {
       // sends the whole mempool.
@@ -99,12 +107,6 @@ module.exports = {
       }
     }
     return res.send("block rejected");
-  },
-
-  getBlockByHeight: async (req, res) => {
-
-    let block = await myBlockChain.getBlock(req.params.height);
-    return res.send(block);
   },
 
   sendBlockchain: async (req, res) => {
