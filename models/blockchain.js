@@ -102,7 +102,7 @@ class blockchain {
   async getBlockByHash(hash) {
     try {
       let result = await this.database.getBlockByHash(hash);
-      block = JSON.parse(result.value);
+      let block = JSON.parse(result.value);
       return block;
     } catch (err) {
       console.log(err);
