@@ -48,40 +48,44 @@ module.exports = {
     res.send(student);
   },
   addBlock: async (req, res) => {
-    // sends the whole mempool.
-    let data = mempool;
-    // checks if the mempool has more than 5 students.
-    if (data.length <= 5) {
-      return res
-        .status(403)
-        .send("creating a block requires more than 5 students");
-    }
-    // add the block.
-    let newBlock = await myBlockChain.addBlock(data);
-    // check the peerList and send the block to them one by one
-    for (let i = 0; i < peerList.length; i++) {
-      if (!(currentNode.URL == peerList[i].URL)) {
-        let URL = peerList[i].URL;
-        let Link = URL + "/blockchain/receiveBlock";
-        // doesn't work right now, because it require a real url not 'localhost'
-        // get the url from the peerList and combine it with the endPoint with a Post request
-        let Options = {
-          method: "POST",
-          body: JSON.stringify(newBlock),
-          headers: { "Content-Type": "application/json" },
-        };
-        await fetch(Link, Options);
-        await fetch(URL + "/mempool/clear", { method: "POST" });
-        // for a while only
-        // Showin' the result
-        console.log("--------");
-        console.log("block sent to:");
-        console.log(URL + link);
-        console.log("--------");
+    try {
+      // sends the whole mempool.
+      let data = mempool;
+      // checks if the mempool has more than 5 students.
+      if (data.length <= 5) {
+        return res
+          .status(403)
+          .send("creating a block requires more than 5 students");
       }
+      // add the block.
+      let newBlock = await myBlockChain.addBlock(data);
+      // check the peerList and send the block to them one by one
+      for (let i = 0; i < peerList.length; i++) {
+        if (!(currentNode.URL == peerList[i].URL)) {
+          let URL = peerList[i].URL;
+          let Link = URL + "/blockchain/receiveBlock";
+          // doesn't work right now, because it require a real url not 'localhost'
+          // get the url from the peerList and combine it with the endPoint with a Post request
+          let Options = {
+            method: "POST",
+            body: JSON.stringify(newBlock),
+            headers: { "Content-Type": "application/json" },
+          };
+          await fetch(Link, Options);
+          await fetch(URL + "/mempool/clear", { method: "POST" });
+          // for a while only
+          // Showin' the result
+          console.log("--------");
+          console.log("block sent to:");
+          console.log(URL + link);
+          console.log("--------");
+        }
+      }
+      mempool = [];
+      return res.send(newBlock);
+    } catch (error) {
+      console.log(error);
     }
-    mempool = [];
-    return res.send(newBlock);
   },
   receiveBlock: async (req, res) => {
     let Block = req.body;
@@ -275,9 +279,7 @@ module.exports = {
     };
     console.log(newStudent);
     // send it to everyone in the network.
-    console.log(currentNode.URL)
-    console.log(currentNode.name)
-    console.log(currentNode.location)
+
     for (let i = 0; i < peerList.length; i++) {
       if (!(currentNode.URL == peerList[i].URL)) {
         await fetch(peerList[i].URL + "/mempool/receive", studentRequest);
