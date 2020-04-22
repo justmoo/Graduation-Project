@@ -275,6 +275,9 @@ module.exports = {
     };
     console.log(newStudent);
     // send it to everyone in the network.
+    console.log(currentNode.URL)
+    console.log(currentNode.name)
+    console.log(currentNode.location)
     for (let i = 0; i < peerList.length; i++) {
       if (!(currentNode.URL == peerList[i].URL)) {
         await fetch(peerList[i].URL + "/mempool/receive", studentRequest);
