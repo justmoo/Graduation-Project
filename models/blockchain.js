@@ -100,9 +100,13 @@ class blockchain {
   }
   // get the block by hash
   async getBlockByHash(hash) {
-    let result = await this.database.getBlockByHash(hash); 
+    try {
+      let result = await this.database.getBlockByHash(hash);
       block = JSON.parse(result.value);
-    return block;
+      return block;
+    } catch (err) {
+      console.log(err);
+    }
   }
   // helper method
   async getLastBlockHash() {
@@ -146,7 +150,7 @@ class blockchain {
     Block.hash = SHA256(JSON.stringify(newBlock)).toString();
     // showin' result for testing purposes.
     // check if the hash is valid.
-    
+
     if (Block.hash == blockHash) {
       return true;
     }
@@ -171,7 +175,7 @@ class blockchain {
   async receiveBlock(Block) {
     try {
       if (this.ValidateBlock(Block)) {
-        console.log('Valid block!')
+        console.log("Valid block!");
         await this.database.addLevelDBData(Block.height, JSON.stringify(Block));
         console.log("received Block is valid and added to the Blockchain");
         return true;
