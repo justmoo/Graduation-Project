@@ -77,7 +77,7 @@ module.exports = {
           // Showin' the result
           console.log("--------");
           console.log("block sent to:");
-          console.log(URL + link);
+          console.log(URL + "/blockchain/receiveBlock");
           console.log("--------");
         }
       }
@@ -134,6 +134,7 @@ module.exports = {
       // i.e. The other nodes(or at least 4) Must accept the new Node and verifiy it's identity.
       // i did push the node here so it include it self when registering
       let newBlockchain = await myBlockChain.getTheBlockchain();
+      console.log(newBlockchain)
       // brodcast the block.
       let blockchainRequest = {
         method: "POST",

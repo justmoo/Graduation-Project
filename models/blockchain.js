@@ -156,7 +156,7 @@ class blockchain {
       for (let i = 0; i < blockchain.length; i++) {
         await this.database.addLevelDBData(
           blockchain[i].key,
-          blockchain[i].value.data
+          JSON.stringify(blockchain[i].value)
         );
       }
       console.log("the blockchain saved in the database");
